@@ -3,7 +3,6 @@ cheval
 pistolet
 pendus
 desert
-far-west
 saloon
 sherif
 bandit
@@ -13,7 +12,6 @@ ranch
 caleche
 indiens
 cactus
-hors-la-loi
 duel
 frontiere
 chapeau
@@ -28,6 +26,5 @@ western
 fusillade
 fort
 pendaison
-chemin-de-fer
 rodeo
 lasseau
