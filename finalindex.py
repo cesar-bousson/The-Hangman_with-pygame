@@ -5,7 +5,7 @@ pygame.init()
 # window
 screen = pygame.display.set_mode((1080, 720))
 pygame.display.set_caption("The Hangman (py)game")
-background = pygame.image.load("assets/desert.jpg")
+background = pygame.image.load("assets/images/desert.jpg")
 
 window_width, window_height = screen.get_size()
 background_width, background_height = background.get_size()
@@ -98,9 +98,25 @@ def display_word():
         else:
             displayed += "_ "
     text = FONT.render(displayed.strip(), True, BLACK)
-    screen.blit(text, (50, 400))
-# ----------------------------------------------------------------------------
+    screen.blit(text, (50, 250))
 
+# Charger l'image du cœur
+heart_image = pygame.image.load("assets/images/img-detoured/coeur.png")
+heart_size = (40, 40)  # Taille des cœurs
+heart_image = pygame.transform.scale(heart_image, heart_size)
+
+# Fonction pour afficher les cœurs
+def display_hearts(attempts_left_level_1):
+    heart_spacing = 10  # Espace entre les cœurs
+    start_x = 20  # Position de départ pour le premier cœur
+    y = 20  # Position verticale fixe pour les cœurs
+
+    for i in range(attempts_left_level_1 - 1):
+        x = start_x + i * (heart_size[0] + heart_spacing)
+        screen.blit(heart_image, (x, y))
+
+
+# ----------------------------------------------------------------------------
 # Main loop
 running = True
 game_over = False
@@ -110,45 +126,48 @@ third_image = False
 forth_image = False
 
 while running:
+    # Efface l'écran avec le fond
     screen.blit(background, (center_x, center_y))
 
     if not game_over:
+        # Affiche les mots et les images si le jeu est en cours
         display_word()
+        display_hearts(attempts_left_level_1)
         draw_hangman(attempts_left_level_1, first_image_visible, third_image, forth_image)
     else:
+        # Affiche le message de fin de jeu
         text = FONT.render(end_message, True, BLACK)
-        screen.blit(text, (center_x, center_y))
+        text_rect = text.get_rect(center=(window_width // 2, window_height // 2))
+        screen.blit(text, text_rect)
 
-    # Event management
+    # Gestion des événements
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        elif event.type == pygame.KEYDOWN:
+        elif event.type == pygame.KEYDOWN and not game_over:
             if event.unicode.isalpha():
                 letter = event.unicode.upper()
                 if letter not in guessed_letters:
                     guessed_letters.add(letter)
                     if letter not in word_to_guess:
                         attempts_left_level_1 -= 1
-                        
-                        # Active la première image après la première erreur
                         if attempts_left_level_1 <= 8 and not first_image_visible:
                             first_image_visible = True
-                        # Active l'image des corbeaux à 6 tentatives restantes
                         if attempts_left_level_1 <= 6 and not third_image:
                             third_image = True
-                        # Active l'image de la faucheuse à 5 tentatives restantes
                         if attempts_left_level_1 <= 5 and not forth_image:
                             forth_image = True
 
-    # Check victory
-    if "_" not in [letter if letter in guessed_letters else "_" for letter in word_to_guess]:
-        end_message = "Well done ! Vous avez gagneee!"
-        game_over = True
-    elif attempts_left_level_1 == 0:
-        end_message = f"Vous avez perdu... Le mot etait : {word_to_guess}"
-        game_over = True
+    # Vérification de victoire ou défaite
+    if not game_over:
+        if "_" not in [letter if letter in guessed_letters else "_" for letter in word_to_guess]:
+            end_message = f"Well done ! C'est gagneee! Le mot etait: {word_to_guess}"
+            game_over = True
+        elif attempts_left_level_1 == 0:
+            end_message = f"Vous avez perdu... Le mot etait : {word_to_guess}"
+            game_over = True
 
+    # Met à jour l'affichage
     pygame.display.flip()
 
 pygame.quit()
