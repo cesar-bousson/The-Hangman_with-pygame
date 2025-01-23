@@ -3,6 +3,7 @@ cheval
 pistolet
 pendus
 désert
+far-west
 saloon
 shérif
 bandit
