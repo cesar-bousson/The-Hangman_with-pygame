@@ -18,6 +18,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 FONT = pygame.font.Font("assets/GildiaTitulSlNormal.Ttf", 50)
 
+# -------------------------------------------------------------------------------------
 # Words
 words = []
 with open("words_list.txt") as file:
@@ -27,15 +28,15 @@ word_to_guess = random.choice(words).upper()
 
 guessed_letters = set()
 
-attempts_left_level_1 = 10
-
+attempts_left_level_1 = 9
+# -------------------------------------------------------------------------------------
 # Draw hangman
-def draw_hangman(attempts, first_image_visible, third_image):
+def draw_hangman(attempts, first_image_visible, third_image, forth_image):
     pictures = [
         pygame.image.load("assets/images/img-detoured/tree.png"),  # 1 arbre
         pygame.image.load("assets/images/img-detoured/hangman.png"),  # 9 pendu
-        pygame.image.load("assets/images/img-detoured/Design sans titre (1)-Photoroom.png"),  # 8 corbeaux
         pygame.image.load("assets/images/img-detoured/noeud.png"),  # 7 noeud
+        pygame.image.load("assets/images/img-detoured/Design sans titre (1)-Photoroom.png"),  # 8 corbeaux
         pygame.image.load("assets/images/img-detoured/Design sans titre-Photoroom.png"),  # 6 faucheuse
         pygame.image.load("assets/images/img-detoured/preyman1-.png"),  # 5 homme qui prie
         pygame.image.load("assets/images/img-detoured/standman1.png"),  # 4 homme debout
@@ -46,9 +47,9 @@ def draw_hangman(attempts, first_image_visible, third_image):
 
     pic_sizes = [
         (700, 700), #1
-        (190, 190), #9
-        (100, 100), #8
+        (120, 270), #9
         (50, 50),   #7
+        (100, 100), #8
         (200, 200), #6
         (190, 190), #5
         (240, 240), #4
@@ -59,8 +60,8 @@ def draw_hangman(attempts, first_image_visible, third_image):
     positions = [
         (200, 20), #1
         (600, 430),#9
-        (750, 40), #8
         (600, 430), #7
+        (750, 40), #8
         (350, 530), #6
         (550, 540), #5
         (620, 490), #4
@@ -69,7 +70,7 @@ def draw_hangman(attempts, first_image_visible, third_image):
     ]
 
     # Affiche la première image après la première erreur
-    if first_image_visible and attempts >= 1:
+    if first_image_visible and attempts > 0:
         first_picture = pygame.transform.scale(pictures[0], pic_sizes[0])
         screen.blit(first_picture, positions[0])
 
@@ -82,8 +83,12 @@ def draw_hangman(attempts, first_image_visible, third_image):
         third_image = pygame.transform.scale(pictures[3], pic_sizes[3])
         screen.blit(third_image, positions[3])
         
+    if forth_image and attempts >= 4:
+        forth_image = pygame.transform.scale(pictures[4], pic_sizes[4])
+        screen.blit(forth_image, positions[4])
+        
     pygame.display.update()
-
+# -----------------------------------------------------------------------------------
 # Display word
 def display_word():
     displayed = ""
@@ -94,6 +99,7 @@ def display_word():
             displayed += "_ "
     text = FONT.render(displayed.strip(), True, BLACK)
     screen.blit(text, (50, 400))
+# ----------------------------------------------------------------------------
 
 # Main loop
 running = True
@@ -101,16 +107,17 @@ game_over = False
 end_message = ""
 first_image_visible = False
 third_image = False
+forth_image = False
 
 while running:
     screen.blit(background, (center_x, center_y))
 
     if not game_over:
         display_word()
-        draw_hangman(attempts_left_level_1, first_image_visible,third_image)
+        draw_hangman(attempts_left_level_1, first_image_visible, third_image, forth_image)
     else:
         text = FONT.render(end_message, True, BLACK)
-        screen.blit(text, (200, 20))
+        screen.blit(text, (center_x, center_y))
 
     # Event management
     for event in pygame.event.get():
@@ -123,17 +130,23 @@ while running:
                     guessed_letters.add(letter)
                     if letter not in word_to_guess:
                         attempts_left_level_1 -= 1
-                        if not first_image_visible:
-                            first_image_visible = True  #activ first image after first attempts
-                            if not third_image:
-                                third_image = True
+                        
+                        # Active la première image après la première erreur
+                        if attempts_left_level_1 <= 8 and not first_image_visible:
+                            first_image_visible = True
+                        # Active l'image des corbeaux à 6 tentatives restantes
+                        if attempts_left_level_1 <= 6 and not third_image:
+                            third_image = True
+                        # Active l'image de la faucheuse à 5 tentatives restantes
+                        if attempts_left_level_1 <= 5 and not forth_image:
+                            forth_image = True
 
     # Check victory
     if "_" not in [letter if letter in guessed_letters else "_" for letter in word_to_guess]:
-        end_message = "Vous avez gagné!"
+        end_message = "Well done ! Vous avez gagneee!"
         game_over = True
     elif attempts_left_level_1 == 0:
-        end_message = f"Vous avez perdu! Le mot était : {word_to_guess}"
+        end_message = f"Vous avez perdu... Le mot etait : {word_to_guess}"
         game_over = True
 
     pygame.display.flip()
