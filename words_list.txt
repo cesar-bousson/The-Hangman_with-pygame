@@ -16,7 +16,7 @@ duel
 frontiere
 chapeau
 troupeau
-légende
+legende
 eperons
 bisons
 pionnier
@@ -27,4 +27,5 @@ fusillade
 fort
 pendaison
 rodeo
-lasseau
+apache
+
